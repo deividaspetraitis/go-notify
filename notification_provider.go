@@ -55,17 +55,17 @@ func (p *ReminderNotificationProvider) RunScheduler(errors chan<- error) (<-chan
 
 type CalendarNotificationProvider struct {
 	service CalendarService
-	sleep time.Duration
-	out   chan Notification
-	in    chan string
+	sleep   time.Duration
+	out     chan Notification
+	in      chan string
 }
 
 func NewCalendarNotificationProvider(service CalendarService) *CalendarNotificationProvider {
 	return &CalendarNotificationProvider{
 		service: service,
-		sleep: 3 * time.Second,
-		out:   make(chan Notification),
-		in:    make(chan string),
+		sleep:   3 * time.Second,
+		out:     make(chan Notification),
+		in:      make(chan string),
 	}
 }
 

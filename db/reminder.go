@@ -2,7 +2,7 @@ package db
 
 import (
 	"context"
-	
+
 	"github.com/deividaspetraitis/go-notify"
 )
 

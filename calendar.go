@@ -7,8 +7,8 @@ type CalendarEvent struct {
 }
 
 type CalendarEventFilter struct {
-	Offset      *int
-	Limit       *int
+	Offset *int
+	Limit  *int
 }
 
 type CalendarService interface {

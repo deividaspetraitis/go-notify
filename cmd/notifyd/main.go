@@ -12,16 +12,18 @@ func main() {
 
 	// construct notification service by injecting notification data providers
 	notificationservice := notify.NewNotificationService([]notify.NotificationProvider{
-			notify.NewReminderNotificationProvider(&db.ReminderService{}),
-			notify.NewCalendarNotificationProvider(&db.CalendarService{}),
+		notify.NewReminderNotificationProvider(&db.ReminderService{}),
+		notify.NewCalendarNotificationProvider(&db.CalendarService{}),
 	})
 
 	errors := notificationservice.RunNotificationSender()
 
 	// separate routine watching and reporting errors
 	go func() {
-		if err := <-errors; err != nil {
-			log.Println("received an error", err)
+		for {
+			if err := <-errors; err != nil {
+				log.Println("received an error", err)
+			}
 		}
 	}()
 
