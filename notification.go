@@ -13,10 +13,26 @@ type NotificationProvider interface {
 }
 
 type NotificationService struct {
-	DataProviders []NotificationProvider
+	providers []NotificationProvider
+	errors chan error
 }
 
-func (ns *NotificationService) RunNotificationSender(notifications <-chan Notification, status chan<- string) {
+func NewNotificationService(providers []NotificationProvider) *NotificationService {
+	return &NotificationService{
+		providers: providers,
+		errors: make(chan error),
+	}
+}
+
+func (ns *NotificationService) RunNotificationSender() <-chan error {
+	for _, v := range ns.providers {
+		ns.runNotificationSender(v.RunScheduler(ns.errors))
+	}
+
+	return ns.errors
+}
+
+func (ns *NotificationService) runNotificationSender(notifications <-chan Notification, status chan<- string) {
 	go func() {
 		for {
 			n := <-notifications

@@ -8,20 +8,15 @@ import (
 )
 
 func main() {
-	errors := make(chan error)
+	// TODO: context
 
 	// construct notification service by injecting notification data providers
-	notificationservice := notify.NotificationService{
-		DataProviders: []notify.NotificationProvider{
+	notificationservice := notify.NewNotificationService([]notify.NotificationProvider{
 			notify.NewReminderNotificationProvider(&db.ReminderService{}),
 			notify.NewCalendarNotificationProvider(&db.CalendarService{}),
-		},
-	}
+	})
 
-	// run notification sender
-	for _, v := range notificationservice.DataProviders {
-		notificationservice.RunNotificationSender(v.RunScheduler(errors))
-	}
+	errors := notificationservice.RunNotificationSender()
 
 	// separate routine watching and reporting errors
 	go func() {
