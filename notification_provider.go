@@ -1,6 +1,7 @@
-package main
+package notify
 
 import (
+	"context"
 	"log"
 	"time"
 )
@@ -12,9 +13,9 @@ type ReminderNotificationProvider struct {
 	in      chan string
 }
 
-func NewReminderNotificationProvider() *ReminderNotificationProvider {
+func NewReminderNotificationProvider(service ReminderService) *ReminderNotificationProvider {
 	return &ReminderNotificationProvider{
-		service: ReminderService{},
+		service: service,
 		sleep:   5 * time.Second,
 		out:     make(chan Notification),
 		in:      make(chan string),
@@ -27,7 +28,7 @@ func (p *ReminderNotificationProvider) RunScheduler(errors chan<- error) (<-chan
 	// routine for data fetch scheduler
 	go func() {
 		for {
-			reminders, err := p.service.FindReminders()
+			reminders, err := p.service.FindReminders(context.TODO(), ReminderFilter{})
 			if err != nil {
 				errors <- err
 				time.Sleep(p.sleep)
@@ -53,13 +54,15 @@ func (p *ReminderNotificationProvider) RunScheduler(errors chan<- error) (<-chan
 }
 
 type CalendarNotificationProvider struct {
+	service CalendarService
 	sleep time.Duration
 	out   chan Notification
 	in    chan string
 }
 
-func NewCalendarNotificationProvider() *CalendarNotificationProvider {
+func NewCalendarNotificationProvider(service CalendarService) *CalendarNotificationProvider {
 	return &CalendarNotificationProvider{
+		service: service,
 		sleep: 3 * time.Second,
 		out:   make(chan Notification),
 		in:    make(chan string),
@@ -70,7 +73,13 @@ func (p *CalendarNotificationProvider) RunScheduler(errors chan<- error) (<-chan
 	// routine for data fetch scheduler
 	go func() {
 		for {
-			p.out <- Notification{Calendar: []string{"Meeting with manager 10 AM"}}
+			events, err := p.service.FindCalendarEvents(context.TODO(), CalendarEventFilter{})
+			if err != nil {
+				errors <- err
+				time.Sleep(p.sleep)
+			}
+
+			p.out <- Notification{CalendarEvent: events}
 			time.Sleep(p.sleep)
 		}
 	}()

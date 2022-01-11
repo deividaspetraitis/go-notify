@@ -1,11 +1,11 @@
-package main
+package notify
 
 import "log"
 
 // Notification consist of ...
 type Notification struct {
 	Reminder []Reminder
-	Calendar []string
+	CalendarEvent []CalendarEvent
 }
 
 type NotificationProvider interface {

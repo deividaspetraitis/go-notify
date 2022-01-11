@@ -1,21 +1,22 @@
-package main
+package notify
+
+import (
+	"context"
+	"time"
+)
 
 type Reminder struct {
 	Title string
 }
 
-// ReminderService represents actual reminder service implementation
-type ReminderService struct {
-	// db handler and other states
+type ReminderFilter struct {
+	BeforeStart *time.Duration
+	Language    []string
+	Offset      *int
+	Limit       *int
 }
 
-func (s *ReminderService) FindReminders() ([]Reminder, error) {
-	return []Reminder{
-		{Title: "take a walk dog"},
-		{Title: "be happy"},
-	}, nil
-}
-
-func (s *ReminderService) MarkDeliveryStatus(id int, status string) error {
-	return nil
+type ReminderService interface {
+	FindReminders(ctx context.Context, filter ReminderFilter) ([]Reminder, error)
+	MarkDeliveryStatus(id int, status string) error
 }
